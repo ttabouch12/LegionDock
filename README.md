@@ -4,6 +4,10 @@
 
 # LegionDock
 
+[![Build](https://github.com/ttabouch12/LegionDock/actions/workflows/build.yml/badge.svg)](https://github.com/ttabouch12/LegionDock/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/ttabouch12/LegionDock)](https://github.com/ttabouch12/LegionDock/releases/latest)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
+
 **Plug your Lenovo Legion tablet into a TV and it becomes a console.**
 
 The tablet screen turns off, the picture goes to the TV in landscape, your controller drives everything,
