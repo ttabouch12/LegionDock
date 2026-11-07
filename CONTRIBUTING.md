@@ -38,7 +38,13 @@ See [docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md). Short version:
 
 ## Releases (maintainers)
 
-Releases are published by the **Release** workflow when a `v*` tag is pushed. Add release notes in `docs/release-notes/<tag>.md` first.
+To publish a release:
+
+1. Bump `versionCode` / `versionName` in `app/build.gradle.kts` (and `BuildInfo.VERSION`).
+2. Optionally put the APK signed with the project key on the `release-assets` branch as `dist/LegionDock-<version>.apk`.
+3. Add `docs/release-notes/v<version>.md` on `main`.
+
+The **Release** workflow then creates the tag and the GitHub release. Pushing a `v*` tag or running the workflow by hand works too.
 
 For signed releases, add two repository secrets (*Settings → Secrets and variables → Actions*):
 

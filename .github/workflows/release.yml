@@ -1,18 +1,20 @@
 name: Release
 
-# Push a tag like v1.0.0 to publish a release.
-# If the tag's release APK was uploaded to the "release-assets" branch (as dist/LegionDock-<version>.apk),
-# that signed file is attached. Otherwise the APK is built here, signed with the RELEASE_KEYSTORE_BASE64 /
-# RELEASE_KEYSTORE_PASSWORD secrets when present (see CONTRIBUTING.md), else with a debug key.
+# Publishes a GitHub release for the version in app/build.gradle.kts (tag v<versionName>).
+#
+# Runs when release notes are added or changed on main (docs/release-notes/), when a v* tag is pushed,
+# or by hand from the Actions tab. If the release already exists, nothing happens.
+#
+# The APK comes from the "release-assets" branch (dist/LegionDock-<version>.apk, signed with the
+# project key) when present. Otherwise it is built here and signed with the RELEASE_KEYSTORE_BASE64 /
+# RELEASE_KEYSTORE_PASSWORD secrets when set (see CONTRIBUTING.md), else with a debug key.
 
 on:
   push:
+    branches: [ main ]
+    paths: [ "docs/release-notes/**" ]
     tags: [ "v*" ]
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Existing tag to (re)publish, e.g. v1.0.0"
-        required: true
 
 permissions:
   contents: write
@@ -20,39 +22,58 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.TAG }}
+          fetch-depth: 0
 
-      - name: Look for a pre-built signed APK
-        id: prebuilt
+      - name: Work out the version
+        id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          VER="${TAG#v}"
+          VER=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts)
+          TAG="v${VER}"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then TAG="${GITHUB_REF_NAME}"; VER="${TAG#v}"; fi
+          echo "ver=${VER}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "Release ${TAG} already exists; nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif [ ! -f "docs/release-notes/${TAG}.md" ]; then
+            echo "No docs/release-notes/${TAG}.md; nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Look for the signed APK
+        id: prebuilt
+        if: steps.v.outputs.skip != 'true'
+        run: |
+          APK="LegionDock-${{ steps.v.outputs.ver }}.apk"
           if git fetch --depth 1 origin release-assets 2>/dev/null && \
-             git show "origin/release-assets:dist/LegionDock-${VER}.apk" > "LegionDock-${VER}.apk" 2>/dev/null; then
+             git show "origin/release-assets:dist/${APK}" > "${APK}" 2>/dev/null; then
             echo "found=true" >> "$GITHUB_OUTPUT"
           else
-            rm -f "LegionDock-${VER}.apk"
+            rm -f "${APK}"
             echo "found=false" >> "$GITHUB_OUTPUT"
           fi
-          echo "ver=${VER}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v4
-        if: steps.prebuilt.outputs.found != 'true'
+        if: steps.v.outputs.skip != 'true' && steps.prebuilt.outputs.found != 'true'
         with:
           distribution: temurin
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v4
-        if: steps.prebuilt.outputs.found != 'true'
+        if: steps.v.outputs.skip != 'true' && steps.prebuilt.outputs.found != 'true'
         with:
           gradle-version: "8.14.3"
 
       - name: Build and sign
-        if: steps.prebuilt.outputs.found != 'true'
+        if: steps.v.outputs.skip != 'true' && steps.prebuilt.outputs.found != 'true'
         env:
           KS_B64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
           KS_PASS: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
@@ -62,12 +83,15 @@ jobs:
             export LEGIONDOCK_KEYSTORE="$RUNNER_TEMP/release.jks" LEGIONDOCK_KEYSTORE_PASSWORD="$KS_PASS"
           fi
           gradle --no-daemon :app:assembleRelease
-          cp app/build/outputs/apk/release/app-release.apk "LegionDock-${{ steps.prebuilt.outputs.ver }}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "LegionDock-${{ steps.v.outputs.ver }}.apk"
 
-      - name: Publish release
+      - name: Publish the release
+        if: steps.v.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.TAG }}
-          name: LegionDock ${{ steps.prebuilt.outputs.ver }}
-          body_path: docs/release-notes/${{ env.TAG }}.md
-          files: LegionDock-${{ steps.prebuilt.outputs.ver }}.apk
+          tag_name: ${{ steps.v.outputs.tag }}
+          target_commitish: ${{ steps.v.outputs.sha }}
+          name: LegionDock ${{ steps.v.outputs.ver }}
+          body_path: docs/release-notes/${{ steps.v.outputs.tag }}.md
+          files: LegionDock-${{ steps.v.outputs.ver }}.apk
+          make_latest: true
