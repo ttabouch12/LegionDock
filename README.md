@@ -103,6 +103,14 @@ gradle :app:assembleRelease     # Gradle 8.13+, JDK 17, Android SDK 36
 
 Or just push a commit: GitHub Actions builds an APK for every push. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Credits
+
+- **[Shizuku](https://github.com/RikkaApps/Shizuku)** by RikkaApps (Apache-2.0): LegionDock talks to Shizuku's binder protocol directly.
+  [`BinderContainer`](app/src/main/java/moe/shizuku/api/BinderContainer.java) re-creates the class name and parcel layout of Shizuku's API so the binder can be received; no Shizuku code is copied.
+- **Lenovo ZUI / ZUXOS**: the PC-mode switch, bypass-charging setting and display quirks were found by studying the tablet's own firmware and settings. Not affiliated with Lenovo.
+- Works great with **[Daijishō](https://play.google.com/store/apps/details?id=com.magneticchen.daijishou)**, **[Eden](https://eden-emu.dev)** and **[Citron](https://github.com/citron-neo/emulator)**, which are separate projects and are not included.
+- GPL-3.0 license text from the [GNU project](https://www.gnu.org/licenses/gpl-3.0.html).
+
 ## License
 
 [GPL-3.0](LICENSE). LegionDock is an independent project and is not affiliated with or endorsed by Lenovo.
