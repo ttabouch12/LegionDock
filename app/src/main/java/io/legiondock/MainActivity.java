@@ -274,7 +274,9 @@ public class MainActivity extends Activity {
 
         section("When the TV connects");
         LinearLayout tiles = new LinearLayout(this);
-        tiles.setOrientation(wide ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
+        // one row only when each tile gets ~160dp; narrow windows (e.g. a Desktop-mode window) use pairs
+        final boolean oneRow = getResources().getConfiguration().screenWidthDp >= 1000;
+        tiles.setOrientation(oneRow ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
         String active = Modes.active(this);
         LinearLayout pair = null;
         final String[] allModes = Modes.all(this);
@@ -299,7 +301,7 @@ public class MainActivity extends Activity {
                 DockService.start(this);
                 rerender("mode:" + m);
             });
-            if (wide) {
+            if (oneRow) {
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -1, 1);
                 lp.setMargins(i == 0 ? 0 : dp(6), 0, i == allModes.length - 1 ? 0 : dp(6), 0);
                 tiles.addView(t, lp);

@@ -58,7 +58,7 @@ It remembers which values it set itself, so a crash or a forced reboot in the mi
 
 - **Guide button** (PS / Xbox / Home): tap = home screen, hold = **quick menu**.
 - **Select + Start**: also opens the quick menu, for controllers without a Guide button.
-- **Quick menu**: dock / undock, tablet screen on/off, virtual mouse, performance overlay, close the current app, free memory, recents, screenshot, volume, and Restore tablet. Works fully with the D-pad.
+- **Quick menu**: switch mode, dock / undock, tablet screen on/off, virtual mouse, performance overlay, close the current app, free memory, recents, screenshot, volume, and Restore tablet. Works fully with the D-pad.
 - **Virtual mouse**: the left stick moves a cursor, ✕/A taps (hold for long-press), ○/B goes back, the right stick scrolls. Turn it on per mode, per game, from the quick menu, or with a button combo (**Share + L3** by default).
 - **Handheld mode**: applies its own settings when your clip-on / telescopic controller connects and no TV is plugged in (for example 60 Hz, overlay on, Do Not Disturb).
 

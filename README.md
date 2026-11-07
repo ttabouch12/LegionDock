@@ -40,8 +40,8 @@ No root needed. LegionDock uses [Shizuku](https://shizuku.rikka.app/) for the sy
 
 <table>
 <tr>
-<td align="center"><img src="docs/images/tv-console.png" width="420"><br><sub>Console mode on the TV</sub></td>
-<td align="center"><img src="docs/images/tv-desktop.png" width="420"><br><sub>Desktop mode (Lenovo PC mode) on the TV</sub></td>
+<td align="center"><img src="docs/images/tv-desktop.jpg" width="420"><br><sub>Desktop mode (Lenovo PC mode) on the TV</sub></td>
+<td align="center"><img src="docs/images/desktop.png" width="420"><br><sub>Desktop settings: scale, resolution, screen</sub></td>
 </tr>
 <tr>
 <td align="center"><img src="docs/images/modes.png" width="420"><br><sub>Each mode has its own settings</sub></td>
